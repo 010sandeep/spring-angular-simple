@@ -1,0 +1,26 @@
+<!-- <app-navbar></app-navbar> -->
+<div align="center">
+   <h1>Login</h1>
+    <font color="red"><h3>{{ form.message }}</h3></font>
+  <!-- <h3>{{ message }}</h3> -->
+
+  <table>
+     <tr>
+            <th>Login ID: </th>
+            <td><input type="text" name="loginId" [(ngModel)]="form.data.loginId" /></td>
+            <td *ngIf="form.inputerror.loginId != null" style="position: fixed;">
+            <font color="red">{{form.inputerror.loginId}}</font>
+        </td>
+        </tr>
+
+     <tr>
+            <th>Password: </th>
+            <td><input type="text" name="password" [(ngModel)]="form.data.password" /></td>
+            <td *ngIf="form.inputerror.password != null" style="position: fixed;">
+            <font color="red"> {{form.inputerror.password}}</font>
+        </td>
+        </tr>
+  </table>
+  <button  (click)="signIn()" >signIn</button>&nbsp;
+  <button  (click)="signUp()" >signUp</button>
+</div>
