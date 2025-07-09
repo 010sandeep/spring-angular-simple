@@ -1,9 +1,11 @@
 package com.rays.ctl;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rays.common.BaseCtl;
 import com.rays.common.ORSResponse;
+import com.rays.config.JWTUtil;
 import com.rays.dto.UserDTO;
 import com.rays.form.LoginForm;
 import com.rays.form.UserRegistrationForm;
@@ -23,8 +26,23 @@ public class LoginCtl extends BaseCtl {
 	@Autowired
 	public UserService service;
 
+	@Autowired
+	private JWTUtil jwtUtil;
+
+	@GetMapping("logout")
+	public ORSResponse logout(HttpSession session) {
+
+		ORSResponse res = new ORSResponse();
+
+		session.invalidate();
+
+		res.addMessage("Logout successfully..!!");
+
+		return res;
+	}
+
 	@PostMapping("login")
-	public ORSResponse login(@RequestBody @Valid LoginForm form, BindingResult bindingResult) {
+	public ORSResponse login(@RequestBody @Valid LoginForm form, BindingResult bindingResult, HttpSession session) {
 
 		ORSResponse res = validate(bindingResult);
 
@@ -34,7 +52,15 @@ public class LoginCtl extends BaseCtl {
 
 		UserDTO dto = service.authenticate(form.getLoginId(), form.getPassword());
 		if (dto != null) {
+			
+			String token = jwtUtil.generateToken(form.getLoginId());
+			System.out.println("token = " + token);
+			
+			res.addResult("token", token);
+			
+			session.setAttribute("user", dto);
 			res.addData(dto);
+			
 		} else {
 			res.addMessage("Login ID & Password is invalid..!!");
 		}

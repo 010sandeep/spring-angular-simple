@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { WelcomeComponent } from './welcome/welcome.component';
 import { LoginComponent } from './login/login.component';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { NavbarComponent } from './navbar/navbar.component';
 import { SignupComponent } from './signup/signup.component';
 import { UserComponent } from './user/user.component';
 import { UserlistComponent } from './user/userlist.component';
+import { HttpServiceService } from './http-service.service';
+import { AuthServiceService } from './http-auth.service';
 
 @NgModule({
   declarations: [
@@ -29,7 +31,12 @@ import { UserlistComponent } from './user/userlist.component';
     HttpClientModule,
     
   ],
-  providers: [],
+  providers: [
+     {
+      provide: HTTP_INTERCEPTORS, useClass: AuthServiceService, multi: true
+    },
+    HttpServiceService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,63 +1,62 @@
 import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { HttpServiceService } from '../http-service.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
 })
-export class LoginComponent {
-  
+export class LoginComponent implements OnInit {
+
   form: any = {
     data: {},
     message: '',
-    inputerror:{}
-    
-    
-  };
+    inputerror: {}
+  }
 
-  constructor(public route: Router, private httpclient:HttpClient){
+  constructor(private httpService: HttpServiceService, public router: Router, private route: ActivatedRoute) {
 
   }
 
+  ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      this.form.message = params['errorMessage'] || null;
+      console.log('msg = >', this.form.message)
+    });
+  }
+
+
   signIn() {
-    console.log('login id = ', this.form.data.loginId);
-    console.log('password = ', this.form.data.password);
 
-    this.httpclient.post('http://localhost:8080/Auth/login', this.form.data).subscribe((res:any)=>{
+    var self = this
+    this.httpService.post('http://localhost:8080/Auth/login', this.form.data, function (res: any) {
 
-      console.log('res:' , res);
+      console.log('res => ', res)
 
-      this.form.message='';
-      this.form.inputerror={};
+      self.form.message = '';
+      self.form.inputerror = {};
 
       if (res.result.message) {
-        this.form.message = res.result.message
-        
-        
+        self.form.message = res.result.message;
       }
-      
 
       if (!res.success) {
-
-        this.form.inputerror = res.result.inputerror
+        self.form.inputerror = res.result.inputerror;
       }
 
-      
       if (res.success && res.result.data != null) {
         localStorage.setItem('firstName', res.result.data.firstName)
         localStorage.setItem('roleName', res.result.data.roleName)
-        this.route.navigateByUrl('welcome');
+        localStorage.setItem('id', res.result.data.id)
+          localStorage.setItem('token', 'Bearer ' + res.result.token)
+        self.router.navigateByUrl('welcome');
       }
     })
   }
-    
-  
 
-  signUp(){
-
-    this.route.navigateByUrl('signup');
-
+  signUp() {
+    this.router.navigateByUrl('signup');
   }
 }

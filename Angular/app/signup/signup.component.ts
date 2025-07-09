@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
+import { HttpServiceService } from '../http-service.service';
 
 @Component({
   selector: 'app-signup',
@@ -7,31 +8,34 @@ import { Component } from '@angular/core';
   styleUrls: ['./signup.component.css'],
 })
 export class SignupComponent {
+
   form: any = {
     data: {},
     message: '',
-    inputerror: {},
-  };
+    inputerror: {}
+  }
 
-  constructor(private httpclient: HttpClient) {}
+
+  constructor(private httpService: HttpServiceService) {
+
+  }
 
   signUp() {
-    console.log('form: ', this.form);
+    var self = this
+    this.httpService.post('http://localhost:8080/Auth/signUp', this.form.data, function (res: any) {
+      console.log('res => ', res)
 
-    this.httpclient
-      .post('http://localhost:8080/Auth/signUp', this.form.data).subscribe((res: any) => {
-        console.log('res:', res);
+      self.form.message = '';
+      self.form.inputerror = {};
 
-        this.form.message = '';
-        this.form.inputerror = {};
+      if (res.result.message) {
+        self.form.message = res.result.message;
+      }
 
-        if (res.result.message) {
-          this.form.message = res.result.message;
-        }
-
-        if (!res.success) {
-          this.form.inputerror = res.result.inputerror;
-        }
-      });
+      if (!res.success) {
+        self.form.inputerror = res.result.inputerror;
+      }
+    })
   }
+
 }
